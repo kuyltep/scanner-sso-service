@@ -1,0 +1,66 @@
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum SubscriptionType {
+  FREE
+  BASIC
+  PRO
+  ENTERPRISE
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  EXPIRED
+  CANCELED
+}
+
+model User {
+  id       String  @default(uuid())
+  email    String  @unique
+  username String?
+  password String
+
+  subscription_id String       @unique
+  subscription    Subscription @relation(fields: [subscription_id], references: [id])
+
+  @@id([id])
+  @@map("user")
+}
+
+model Subscription {
+  id          String               @default(uuid())
+  template    SubscriptionTemplate @relation(fields: [template_id], references: [id])
+  template_id String
+  scans       Int
+  start_date  DateTime             @default(now())
+  end_date    DateTime
+  User        User?
+
+  status SubscriptionStatus @default(ACTIVE)
+
+  @@id([id])
+  @@map("subscription")
+}
+
+model SubscriptionTemplate {
+  id            String           @default(uuid())
+  type          SubscriptionType
+  price         Float
+  limit         Int
+  subscriptions Subscription[]
+
+  version Int @default(1)
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@id([id])
+  @@map("subscription_template")
+}
