@@ -10,6 +10,8 @@ import { AuthGuard } from '../guards/auth.guard';
 import { RolesGuard } from '../guards/roles.guard';
 import { ErorrsInterceptor } from '../interceptors/errors.interceptor';
 import { ExceptionModule } from './exception.module';
+import { AuthModule } from './auth.module';
+import { UserModule } from './user.module';
 
 @Module({
   imports: [
@@ -17,6 +19,8 @@ import { ExceptionModule } from './exception.module';
     SwaggerModule,
     HealthModule,
     ExceptionModule,
+    AuthModule,
+    UserModule,
     JwtModule.registerAsync({
       useFactory(configService: ConfigService) {
         return {
