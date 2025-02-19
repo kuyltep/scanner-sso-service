@@ -24,7 +24,7 @@ enum SubscriptionStatus {
 model User {
   id       String  @default(uuid())
   email    String  @unique
-  username String?
+  username String? @unique
   password String
 
   subscription_id String       @unique
