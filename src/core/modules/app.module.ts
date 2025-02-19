@@ -5,19 +5,24 @@ import { HealthModule } from './health.module';
 import { AppController } from '../controllers/app.controller';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigService } from '../services/config.service';
-import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
+import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { AuthGuard } from '../guards/auth.guard';
 import { RolesGuard } from '../guards/roles.guard';
-import { ErorrsInterceptor } from '../interceptors/errors.interceptor';
 import { ExceptionModule } from './exception.module';
 import { AuthModule } from './auth.module';
 import { UserModule } from './user.module';
+import { AllExceptionsFilter } from '../filters/catch.filter';
+import { DateService } from '../services/date.service';
+import { PrismaModule } from './prisma.module';
+import { DateModule } from './date.module';
 
 @Module({
   imports: [
     ConfigModule,
     SwaggerModule,
     HealthModule,
+    PrismaModule,
+    DateModule,
     ExceptionModule,
     AuthModule,
     UserModule,
@@ -45,8 +50,8 @@ import { UserModule } from './user.module';
       provide: APP_GUARD,
     },
     {
-      useClass: ErorrsInterceptor,
-      provide: APP_INTERCEPTOR,
+      useClass: AllExceptionsFilter,
+      provide: APP_FILTER,
     },
   ],
 })

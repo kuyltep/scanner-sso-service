@@ -5,7 +5,7 @@ import {
   HealthCheck,
   MemoryHealthIndicator,
 } from '@nestjs/terminus';
-import { ConfigService } from 'src/services/config.service';
+import { ConfigService } from '../services/config.service';
 
 @Controller('health')
 export class HealthController {
