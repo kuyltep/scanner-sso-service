@@ -12,7 +12,6 @@ import { ExceptionModule } from './exception.module';
 import { AuthModule } from './auth.module';
 import { UserModule } from './user.module';
 import { AllExceptionsFilter } from '../filters/catch.filter';
-import { DateService } from '../services/date.service';
 import { PrismaModule } from './prisma.module';
 import { DateModule } from './date.module';
 
