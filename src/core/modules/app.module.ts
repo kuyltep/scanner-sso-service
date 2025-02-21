@@ -5,8 +5,7 @@ import { HealthModule } from './health.module';
 import { AppController } from '../controllers/app.controller';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigService } from '../services/config.service';
-import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
-import { AuthGuard } from '../guards/auth.guard';
+import { APP_FILTER, APP_GUARD } from '@nestjs/core';
 import { RolesGuard } from '../guards/roles.guard';
 import { ExceptionModule } from './exception.module';
 import { AuthModule } from './auth.module';
@@ -14,6 +13,8 @@ import { UserModule } from './user.module';
 import { AllExceptionsFilter } from '../filters/catch.filter';
 import { PrismaModule } from './prisma.module';
 import { DateModule } from './date.module';
+import { SubscriptionModule } from './subscription.module';
+import { SubscriptionTemplateModule } from './subscription.template.module';
 
 @Module({
   imports: [
@@ -25,25 +26,20 @@ import { DateModule } from './date.module';
     ExceptionModule,
     AuthModule,
     UserModule,
+    SubscriptionModule,
+    SubscriptionTemplateModule,
     JwtModule.registerAsync({
-      useFactory(configService: ConfigService) {
-        return {
-          global: true,
-          secret: configService.getJwtSecret(),
-          signOptions: {
-            expiresIn: configService.getExpiresIn(),
-          },
-        };
-      },
+      useFactory: async (configService: ConfigService) => ({
+        global: true,
+        signOptions: { expiresIn: configService.getExpiresIn() },
+        secret: configService.getJwtSecret(),
+      }),
+      global: true,
       inject: [ConfigService],
     }),
   ],
   controllers: [AppController],
   providers: [
-    {
-      useClass: AuthGuard,
-      provide: APP_GUARD,
-    },
     {
       useClass: RolesGuard,
       provide: APP_GUARD,

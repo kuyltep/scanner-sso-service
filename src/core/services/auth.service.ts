@@ -17,10 +17,15 @@ export class AuthService {
   ) {}
 
   private async generateJwtToken(user: User) {
-    const token = await this.jwtService.signAsync({
-      sub: user.id,
-      role: user.role,
-    });
+    const token = await this.jwtService.signAsync(
+      {
+        sub: user.id,
+        role: user.role,
+      },
+      {
+        secret: this.configService.getJwtSecret(),
+      },
+    );
     return token;
   }
 
@@ -32,7 +37,6 @@ export class AuthService {
         'Invalid user was provided',
       );
     }
-
     const isCompare = await bcrypt.compare(
       userLoginDto.password,
       user.password,

@@ -26,6 +26,8 @@ export class AllExceptionsFilter implements ExceptionFilter {
       message = exception?.['message'] || message;
     }
 
+    console.log(exception);
+
     response.status(status).json({
       statusCode: status,
       timestamp: new Date().toISOString(),
