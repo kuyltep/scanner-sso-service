@@ -8,12 +8,14 @@ import {
   QuerySubscriptionRenewDto,
 } from 'src/common/dtos/subscription/query.subscription.dto';
 import { Prisma } from '@prisma/client';
+import { ExceptionService } from './exception.service';
 
 @Injectable()
 export class SubscriptionService {
   constructor(
     private readonly prismaService: PrismaService,
     private readonly dateService: DateService,
+    private readonly exceptionService: ExceptionService,
   ) {}
 
   public async getAllSubscriptions(query: QuerySubscriptionDto) {
@@ -164,6 +166,32 @@ export class SubscriptionService {
         scans: template.limit,
         start_date: this.dateService.getCurrentDate(),
         end_date: this.dateService.getDateWithOffset(0, 1, 0),
+      },
+    });
+  }
+
+  public async changeSubscriptionTemplate(
+    subscriptionId: string,
+    newTemplateId: string,
+  ) {
+    const newTemplate =
+      await this.prismaService.subscriptionTemplate.findUnique({
+        where: { id: newTemplateId },
+        select: { limit: true },
+      });
+
+    if (!newTemplate) {
+      throw this.exceptionService.notFoundError('Template not found');
+    }
+
+    return await this.prismaService.subscription.update({
+      where: { id: subscriptionId },
+      data: {
+        template_id: newTemplateId,
+        scans: newTemplate.limit,
+        start_date: this.dateService.getCurrentDate(),
+        end_date: this.dateService.getDateWithOffset(0, 1, 0),
+        status: 'ACTIVE',
       },
     });
   }

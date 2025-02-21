@@ -22,7 +22,10 @@ import {
   GetSubscriptionDto,
   GetSubscriptionsDto,
 } from 'src/common/dtos/subscription/get.subscription.dto';
-import { UpdateSubscriptionDto } from 'src/common/dtos/subscription/update.subscription.dto';
+import {
+  ChangeTemplateSubscriptionDto,
+  UpdateSubscriptionDto,
+} from 'src/common/dtos/subscription/update.subscription.dto';
 import { CreateSubscriptionDto } from 'src/common/dtos/subscription/create.subscription.dto';
 import {
   QuerySubscriptionDto,
@@ -34,6 +37,7 @@ import {
   UpdateSubscriptionDto,
   CreateSubscriptionDto,
   GetSubscriptionsDto,
+  ChangeTemplateSubscriptionDto,
 )
 @Controller('subscriptions')
 export class SubscriptionController {
@@ -85,6 +89,31 @@ export class SubscriptionController {
   })
   async createSubscription(@Body() createDto: CreateSubscriptionDto) {
     return await this.subscriptionService.createSubscription(createDto);
+  }
+
+  @Patch(':id/template')
+  @ApiOperation({ summary: 'Изменить шаблон подписки' })
+  @ApiParam({
+    name: 'id',
+    type: String,
+    required: true,
+    description: 'ID подписки',
+  })
+  @ApiBody({
+    schema: {
+      $ref: getSchemaPath(ChangeTemplateSubscriptionDto),
+    },
+  })
+  @ApiResponse({ status: 200, description: 'Подписка успешно обновлена' })
+  @ApiResponse({ status: 404, description: 'Подписка или шаблон не найдены' })
+  async changeSubscriptionTemplate(
+    @Param('id') id: string,
+    @Body() body: ChangeTemplateSubscriptionDto,
+  ) {
+    return this.subscriptionService.changeSubscriptionTemplate(
+      id,
+      body.template_id,
+    );
   }
 
   @Patch(':id')

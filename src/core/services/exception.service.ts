@@ -1,6 +1,7 @@
 import {
   Injectable,
   InternalServerErrorException,
+  NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
 import {
@@ -22,5 +23,9 @@ export class ExceptionService {
     cause?: ExceptionCause,
   ) {
     throw new InternalServerErrorException(message, cause);
+  }
+
+  public notFoundError(message?: ExceptionMessage, cause?: ExceptionCause) {
+    throw new NotFoundException(message, cause);
   }
 }
