@@ -4,9 +4,12 @@ import { ExceptionService } from './exception.service';
 import { Prisma } from '@prisma/client';
 import { UserRegisterDto } from 'src/common/dtos/auth/user.register.dto';
 import { DateService } from './date.service';
-import { UserUpdateDto } from 'src/common/dtos/user/user.update.dto';
+import {
+  UserChangePasswordDto,
+  UserUpdateDto,
+} from 'src/common/dtos/user/user.update.dto';
 import { UserQueryDto } from 'src/common/dtos/user/user.query.dto';
-
+import * as bcrypt from 'bcrypt';
 @Injectable()
 export class UserService {
   constructor(
@@ -17,21 +20,28 @@ export class UserService {
 
   public async getUsersByQuery(query: UserQueryDto) {
     const usersArgs = {
+      where: {
+        subscription: {
+          template: {},
+        },
+      },
       skip: query.page_number * query.page_size,
       take: query.page_size,
     } as Prisma.UserFindManyArgs;
 
-    query.subscription_id
-      ? (usersArgs.where.subscription_id = query.subscription_id)
-      : null;
+    if (query.subscription_status) {
+      usersArgs.where.subscription = {
+        status: query.subscription_status,
+      };
+    }
 
-    query.subscription_status
-      ? (usersArgs.where.subscription.status = query.subscription_status)
-      : null;
-
-    query.subscription_type
-      ? (usersArgs.where.subscription.template.type = query.subscription_type)
-      : null;
+    if (query.subscription_type) {
+      usersArgs.where.subscription = {
+        template: {
+          type: query.subscription_type,
+        },
+      };
+    }
 
     return await this.prismaService.user.findMany(usersArgs);
   }
@@ -44,9 +54,10 @@ export class UserService {
       where: {
         OR: [{ email: unique }, { username: unique }],
       },
-    } as Prisma.UserFindUniqueArgs;
-    !isSelectPassword ? (userArgs.select.password = false) : null;
-    return await this.prismaService.user.findUnique(userArgs);
+    } as Prisma.UserFindFirstArgs;
+    const user = await this.prismaService.user.findFirst(userArgs);
+    !isSelectPassword ? delete user.password : null;
+    return user;
   }
 
   public async createUser(userRegisterDto: UserRegisterDto) {
@@ -62,9 +73,13 @@ export class UserService {
         },
       });
 
+    const salt = await bcrypt.genSalt();
+    const hash = await bcrypt.hash(userRegisterDto.password, salt);
+
     const userCreateArgs = {
       data: {
         ...userRegisterDto,
+        password: hash,
         subscription: {
           create: {
             end_date: this.dateService.getDateWithOffsetWithoutTime(0, -1, 0),
@@ -104,7 +119,41 @@ export class UserService {
       data: {
         ...updateUserData,
       },
+      omit: {
+        password: true,
+      },
     });
+  }
+
+  public async changePassword(
+    id: string,
+    changePasswordDto: UserChangePasswordDto,
+  ) {
+    const user = await this.getUserByUnique(id, true);
+
+    const isCompare = await bcrypt.compare(
+      changePasswordDto.old_password,
+      user.password,
+    );
+
+    if (!isCompare) {
+      throw this.exceptionService.unauthorizedException(
+        'Invalid password was provided',
+      );
+    }
+
+    const salt = await bcrypt.genSalt();
+    const hash = await bcrypt.hash(changePasswordDto.new_password, salt);
+
+    await this.prismaService.user.update({
+      where: {
+        id,
+      },
+      data: {
+        password: hash,
+      },
+    });
+    return { message: 'ok' };
   }
 
   public async deleteUserById(id: string) {

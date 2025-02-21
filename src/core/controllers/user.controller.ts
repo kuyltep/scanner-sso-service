@@ -6,9 +6,11 @@ import {
   Param,
   Patch,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { UserService } from '../services/user.service';
 import {
+  ApiBearerAuth,
   ApiBody,
   ApiExtraModels,
   ApiOperation,
@@ -17,15 +19,19 @@ import {
   getSchemaPath,
 } from '@nestjs/swagger';
 import { User } from '../decorators/user.decorator';
-import { UserUpdateDto } from 'src/common/dtos/user/user.update.dto';
+import {
+  UserChangePasswordDto,
+  UserUpdateDto,
+} from 'src/common/dtos/user/user.update.dto';
 import { GetUserDto, GetUsersDto } from 'src/common/dtos/user/user.get.dto';
 import { UserQueryDto } from 'src/common/dtos/user/user.query.dto';
+import { AuthGuard } from '../guards/auth.guard';
 
 @Controller('users')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-  @ApiExtraModels(UserUpdateDto, GetUsersDto, GetUserDto)
+  @ApiExtraModels(UserUpdateDto, GetUsersDto, GetUserDto, UserChangePasswordDto)
   @Get('')
   @ApiResponse({
     isArray: true,
@@ -35,6 +41,18 @@ export class UserController {
   })
   public async getUsersByQuery(@Query() query: UserQueryDto) {
     return await this.userService.getUsersByQuery(query);
+  }
+
+  @ApiBearerAuth('access-token')
+  @UseGuards(AuthGuard)
+  @Get('profile')
+  @ApiResponse({
+    schema: {
+      $ref: getSchemaPath(GetUserDto),
+    },
+  })
+  public async getUserProfile(@User('sub') sub: string) {
+    return await this.userService.getUserById(sub);
   }
 
   @Get(':id')
@@ -52,16 +70,28 @@ export class UserController {
     return await this.userService.getUserById(id);
   }
 
-  @Get('profile')
-  @ApiResponse({
+  @ApiBearerAuth('access-token')
+  @UseGuards(AuthGuard)
+  @Patch('change-password')
+  @ApiOperation({ summary: 'Обновить пароль пользователя' })
+  @ApiBody({
     schema: {
-      $ref: getSchemaPath(GetUserDto),
+      $ref: getSchemaPath(UserChangePasswordDto),
     },
   })
-  public async getUserProfile(@User('sub') sub: string) {
-    return await this.userService.getUserById(sub);
+  @ApiResponse({
+    status: 200,
+    description: 'Пароль успешно обновлен ',
+  })
+  public async changePassword(
+    @User('sub') sub: string,
+    @Body() changePasswordDto: UserChangePasswordDto,
+  ) {
+    return await this.userService.changePassword(sub, changePasswordDto);
   }
 
+  @ApiBearerAuth('access-token')
+  @UseGuards(AuthGuard)
   @Patch('profile')
   @ApiOperation({ summary: 'Обновить профиль текущего пользователя' })
   @ApiBody({
@@ -81,7 +111,7 @@ export class UserController {
     @User('sub') sub: string,
     @Body() userUpdateData: UserUpdateDto,
   ) {
-    return this.userService.updateUserById(sub, userUpdateData);
+    return await this.userService.updateUserById(sub, userUpdateData);
   }
 
   @Patch(':id')
@@ -113,9 +143,11 @@ export class UserController {
     @Param('id') id: string,
     @Body() userUpdateDto: UserUpdateDto,
   ) {
-    return this.userService.updateUserById(id, userUpdateDto);
+    return await this.userService.updateUserById(id, userUpdateDto);
   }
 
+  @ApiBearerAuth('access-token')
+  @UseGuards(AuthGuard)
   @Delete('profile')
   @ApiOperation({ summary: 'Удалить профиль текущего пользователя' })
   @ApiResponse({
@@ -123,7 +155,7 @@ export class UserController {
     description: 'Профиль успешно удален',
   })
   public async deleteProfile(@User('sub') sub: string) {
-    return this.userService.deleteUserById(sub);
+    return await this.userService.deleteUserById(sub);
   }
 
   @Delete(':id')
@@ -143,6 +175,6 @@ export class UserController {
     description: 'Пользователь не найден',
   })
   public async deleteUserById(@Param('id') id: string) {
-    return this.userService.deleteUserById(id);
+    return await this.userService.deleteUserById(id);
   }
 }
