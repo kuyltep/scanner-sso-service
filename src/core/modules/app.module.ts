@@ -15,6 +15,7 @@ import { PrismaModule } from './prisma.module';
 import { DateModule } from './date.module';
 import { SubscriptionModule } from './subscription.module';
 import { SubscriptionTemplateModule } from './subscription.template.module';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { SubscriptionTemplateModule } from './subscription.template.module';
     UserModule,
     SubscriptionModule,
     SubscriptionTemplateModule,
+    ScheduleModule.forRoot(),
     JwtModule.registerAsync({
       useFactory: async (configService: ConfigService) => ({
         global: true,
