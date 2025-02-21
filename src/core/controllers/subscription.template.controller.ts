@@ -14,7 +14,6 @@ import {
   ApiExtraModels,
   ApiOperation,
   ApiParam,
-  ApiQuery,
   ApiResponse,
   getSchemaPath,
 } from '@nestjs/swagger';
