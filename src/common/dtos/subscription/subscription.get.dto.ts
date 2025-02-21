@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { SubscriptionStatus, SubscriptionType } from '@prisma/client';
+import { SubscriptionStatus } from '@prisma/client';
+import { GetSubscriptionTemplateDto } from '../subscription-template/get.subscription.template.dto';
 
 export class GetSubscriptionsDto {
   @ApiProperty()
@@ -14,23 +15,6 @@ export class GetSubscriptionsDto {
   end_date: Date;
   @ApiProperty()
   status: SubscriptionStatus;
-}
-
-export class GetSubscriptionTemplateDto {
-  @ApiProperty()
-  id: string;
-  @ApiProperty()
-  type: SubscriptionType;
-  @ApiProperty()
-  price: number;
-  @ApiProperty()
-  limit: number;
-  @ApiProperty()
-  version: number;
-  @ApiProperty()
-  created_at: Date;
-  @ApiProperty()
-  updated_at: Date;
 }
 
 export class GetSubscriptionDto extends GetSubscriptionsDto {
