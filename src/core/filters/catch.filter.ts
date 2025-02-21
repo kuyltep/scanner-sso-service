@@ -6,6 +6,7 @@ import {
   HttpStatus,
 } from '@nestjs/common';
 import { Request, Response } from 'express';
+import { logger } from 'src/common/utils/logger';
 
 @Catch()
 export class AllExceptionsFilter implements ExceptionFilter {
@@ -26,7 +27,7 @@ export class AllExceptionsFilter implements ExceptionFilter {
       message = exception?.['message'] || message;
     }
 
-    console.log(exception);
+    logger.error(message);
 
     response.status(status).json({
       statusCode: status,
