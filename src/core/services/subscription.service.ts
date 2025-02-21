@@ -86,7 +86,9 @@ export class SubscriptionService {
       ? (subscriptionsArgs.where.id = {
           in: query.ids,
         })
-      : null;
+      : (subscriptionsArgs.where.end_date = {
+          lte: this.dateService.getCurrentDate(),
+        });
 
     query.status ? (subscriptionsArgs.where.status = query.status) : null;
     query.type ? (subscriptionsArgs.where.template.type = query.type) : null;
