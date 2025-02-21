@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Role } from 'src/common/enums/role.enum';
-import { GetSubscriptionDto } from '../subscription/subscription.get.dto';
+import { GetSubscriptionDto } from '../subscription/get.subscription.dto';
 
 export class GetUsersDto {
   @ApiProperty()

@@ -7,10 +7,21 @@ export class DateService {
     return new Date();
   }
 
-  getDateWithOffset(offsetDays: number): Date {
-    const currentDate = new Date();
-    currentDate.setDate(currentDate.getDate() + offsetDays);
-    return currentDate;
+  getDateWithOffset(
+    offsetDays: number,
+    offsetMonth: number,
+    offsetYears: number,
+  ): Date {
+    const date = new Date();
+    return new Date(
+      date.getFullYear() + offsetYears,
+      date.getMonth() + offsetMonth,
+      date.getDate() + offsetDays,
+      date.getHours(),
+      date.getMinutes(),
+      date.getSeconds(),
+      date.getMilliseconds(),
+    );
   }
 
   getDateWithOffsetWithoutTime(
@@ -20,9 +31,9 @@ export class DateService {
   ): Date {
     const date = new Date();
     return new Date(
-      date.getFullYear() - offsetYears,
-      date.getMonth() - offsetMonth,
-      date.getDate() - offsetDays,
+      date.getFullYear() + offsetYears,
+      date.getMonth() + offsetMonth,
+      date.getDate() + offsetDays,
     );
   }
 }
