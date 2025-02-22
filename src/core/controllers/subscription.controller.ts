@@ -50,7 +50,9 @@ export class SubscriptionController {
     description: 'Список подписок',
     isArray: true,
     schema: {
-      $ref: getSchemaPath(GetSubscriptionsDto),
+      items: {
+        $ref: getSchemaPath(GetSubscriptionsDto),
+      },
     },
   })
   async getAllSubscriptions(@Query() query: QuerySubscriptionDto) {
@@ -89,6 +91,24 @@ export class SubscriptionController {
   })
   async createSubscription(@Body() createDto: CreateSubscriptionDto) {
     return await this.subscriptionService.createSubscription(createDto);
+  }
+
+  @HttpCode(HttpStatus.OK)
+  @Post('/:id/check-scans')
+  @ApiParam({
+    name: 'id',
+    required: true,
+    type: String,
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Количество сканирований успешно уменьшено',
+  })
+  @ApiResponse({ status: 403, description: 'Подписка неактивна' })
+  @ApiResponse({ status: 429, description: 'Лимит сканирований исчерпан' })
+  @ApiResponse({ status: 404, description: 'Подписка не найдена' })
+  public async checkScans(@Param('id') id: string) {
+    return await this.subscriptionService.checkAndDecrementScans(id);
   }
 
   @Patch(':id/template')

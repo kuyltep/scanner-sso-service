@@ -72,6 +72,33 @@ export class SubscriptionService {
     });
   }
 
+  public async checkAndDecrementScans(subscriptionId: string) {
+    const subscription = await this.prismaService.subscription.findUnique({
+      where: { id: subscriptionId },
+      select: { scans: true, status: true },
+    });
+
+    if (!subscription) {
+      throw this.exceptionService.notFoundError('Подписка не найдена');
+    }
+
+    if (subscription.status !== 'ACTIVE') {
+      throw this.exceptionService.forbiddenException('Подписка неактивна');
+    }
+
+    if (subscription.scans <= 0) {
+      throw this.exceptionService.tooManyRequests(
+        'Лимит сканирований исчерпан',
+      );
+    }
+
+    await this.prismaService.subscription.update({
+      where: { id: subscriptionId },
+      data: { scans: { decrement: 1 } },
+    });
+    return { message: 'ok' };
+  }
+
   public async renewSubscriptions(query: QuerySubscriptionRenewDto) {
     const subscriptionsArgs = {
       where: {
