@@ -1,4 +1,6 @@
 import {
+  ForbiddenException,
+  HttpException,
   Injectable,
   InternalServerErrorException,
   NotFoundException,
@@ -27,5 +29,16 @@ export class ExceptionService {
 
   public notFoundError(message?: ExceptionMessage, cause?: ExceptionCause) {
     throw new NotFoundException(message, cause);
+  }
+
+  public forbiddenException(
+    message?: ExceptionMessage,
+    cause?: ExceptionCause,
+  ) {
+    throw new ForbiddenException(message, cause);
+  }
+
+  public tooManyRequests(message?: ExceptionMessage) {
+    throw new HttpException(message, 429);
   }
 }
