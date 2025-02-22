@@ -36,7 +36,9 @@ export class SubscriptionTemplateController {
     description: 'Список шаблонов подписок',
     isArray: true,
     schema: {
-      $ref: getSchemaPath(GetSubscriptionTemplateDto),
+      items: {
+        $ref: getSchemaPath(GetSubscriptionTemplateDto),
+      },
     },
   })
   async getAllTemplates(@Query() query: SubscriptionTemplateQueryDto) {
