@@ -36,7 +36,9 @@ export class UserController {
   @ApiResponse({
     isArray: true,
     schema: {
-      $ref: getSchemaPath(GetUsersDto),
+      items: {
+        $ref: getSchemaPath(GetUsersDto),
+      },
     },
   })
   public async getUsersByQuery(@Query() query: UserQueryDto) {
