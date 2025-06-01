@@ -16,6 +16,7 @@ import { DateModule } from './date.module';
 import { SubscriptionModule } from './subscription.module';
 import { SubscriptionTemplateModule } from './subscription.template.module';
 import { ScheduleModule } from '@nestjs/schedule';
+import { AuthGuard } from '../guards/auth.guard';
 
 @Module({
   imports: [
@@ -42,6 +43,10 @@ import { ScheduleModule } from '@nestjs/schedule';
   ],
   controllers: [AppController],
   providers: [
+    {
+      useClass: AuthGuard,
+      provide: APP_GUARD,
+    },
     {
       useClass: RolesGuard,
       provide: APP_GUARD,
