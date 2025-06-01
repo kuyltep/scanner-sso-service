@@ -10,6 +10,7 @@ import { ConfigService } from '../services/config.service';
         APP_PORT: joi.number().optional().default(4001),
         JWT_SECRET: joi.string().required(),
         EXPIRES_IN: joi.string().required(),
+        DATABASE_URL: joi.string().required(),
       }),
     }),
   ],
