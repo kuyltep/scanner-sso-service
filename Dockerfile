@@ -10,6 +10,8 @@ COPY . .
 
 EXPOSE 4001
 
+RUN yarn build
+
 CMD ["sh", "-c", "yarn prisma migrate deploy && yarn start:prod"]
 
 
