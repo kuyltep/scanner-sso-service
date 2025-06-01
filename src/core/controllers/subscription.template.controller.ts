@@ -21,7 +21,11 @@ import { CreateSubscriptionTemplateDto } from 'src/common/dtos/subscription-temp
 import { UpdateSubscriptionTemplateDto } from 'src/common/dtos/subscription-template/update.subscription.dto';
 import { GetSubscriptionTemplateDto } from 'src/common/dtos/subscription-template/get.subscription.template.dto';
 import { SubscriptionTemplateQueryDto } from 'src/common/dtos/subscription-template/query.subscription.template.dto';
+import { ApiBearerAuth } from '@nestjs/swagger';
+import { Roles } from '../decorators/role.decorator';
+import { Role } from 'src/common/enums/role.enum';
 
+@ApiBearerAuth('access-token')
 @ApiExtraModels(GetSubscriptionTemplateDto, CreateSubscriptionTemplateDto)
 @Controller('subscription-template')
 export class SubscriptionTemplateController {
@@ -65,6 +69,7 @@ export class SubscriptionTemplateController {
     return this.subscriptionTemplateService.getTemplateById(id);
   }
 
+  @Roles(Role.ADMIN)
   @Post()
   @ApiOperation({ summary: 'Создать новый шаблон подписки' })
   @ApiBody({ type: CreateSubscriptionTemplateDto })
@@ -79,6 +84,7 @@ export class SubscriptionTemplateController {
     return this.subscriptionTemplateService.createTemplate(createDto);
   }
 
+  @Roles(Role.ADMIN)
   @Patch(':id')
   @ApiOperation({ summary: 'Обновить шаблон подписки' })
   @ApiParam({
@@ -103,6 +109,7 @@ export class SubscriptionTemplateController {
     return this.subscriptionTemplateService.updateTemplate(id, updateDto);
   }
 
+  @Roles(Role.ADMIN)
   @Delete(':id')
   @ApiOperation({ summary: 'Удалить шаблон подписки' })
   @ApiParam({

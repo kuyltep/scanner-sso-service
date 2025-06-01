@@ -11,6 +11,7 @@ import {
 } from '@nestjs/common';
 import { SubscriptionService } from '../services/subscription.service';
 import {
+  ApiBearerAuth,
   ApiBody,
   ApiExtraModels,
   ApiOperation,
@@ -31,6 +32,8 @@ import {
   QuerySubscriptionDto,
   QuerySubscriptionRenewDto,
 } from 'src/common/dtos/subscription/query.subscription.dto';
+import { Roles } from '../decorators/role.decorator';
+import { Role } from 'src/common/enums/role.enum';
 
 @ApiExtraModels(
   GetSubscriptionDto,
@@ -39,10 +42,12 @@ import {
   GetSubscriptionsDto,
   ChangeTemplateSubscriptionDto,
 )
+@ApiBearerAuth('access-token')
 @Controller('subscriptions')
 export class SubscriptionController {
   constructor(private readonly subscriptionService: SubscriptionService) {}
 
+  @Roles(Role.ADMIN)
   @Get()
   @ApiOperation({ summary: 'Получить все подписки' })
   @ApiResponse({
@@ -111,6 +116,7 @@ export class SubscriptionController {
     return await this.subscriptionService.checkAndDecrementScans(id);
   }
 
+  @Roles(Role.ADMIN)
   @Patch(':id/template')
   @ApiOperation({ summary: 'Изменить шаблон подписки' })
   @ApiParam({
@@ -136,6 +142,7 @@ export class SubscriptionController {
     );
   }
 
+  @Roles(Role.ADMIN)
   @Patch(':id')
   @ApiOperation({ summary: 'Обновить подписку' })
   @ApiParam({

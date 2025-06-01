@@ -25,13 +25,17 @@ import {
 } from 'src/common/dtos/user/user.update.dto';
 import { GetUserDto, GetUsersDto } from 'src/common/dtos/user/user.get.dto';
 import { UserQueryDto } from 'src/common/dtos/user/user.query.dto';
-import { AuthGuard } from '../guards/auth.guard';
+import { Roles } from '../decorators/role.decorator';
+import { Role } from 'src/common/enums/role.enum';
+
+@ApiBearerAuth('access-token')
+@ApiExtraModels(UserUpdateDto, GetUsersDto, GetUserDto, UserChangePasswordDto)
 
 @Controller('users')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-  @ApiExtraModels(UserUpdateDto, GetUsersDto, GetUserDto, UserChangePasswordDto)
+  @Roles(Role.ADMIN)
   @Get('')
   @ApiResponse({
     isArray: true,
@@ -45,8 +49,6 @@ export class UserController {
     return await this.userService.getUsersByQuery(query);
   }
 
-  @ApiBearerAuth('access-token')
-  @UseGuards(AuthGuard)
   @Get('profile')
   @ApiResponse({
     schema: {
@@ -72,8 +74,7 @@ export class UserController {
     return await this.userService.getUserById(id);
   }
 
-  @ApiBearerAuth('access-token')
-  @UseGuards(AuthGuard)
+
   @Patch('change-password')
   @ApiOperation({ summary: 'Обновить пароль пользователя' })
   @ApiBody({
@@ -92,8 +93,6 @@ export class UserController {
     return await this.userService.changePassword(sub, changePasswordDto);
   }
 
-  @ApiBearerAuth('access-token')
-  @UseGuards(AuthGuard)
   @Patch('profile')
   @ApiOperation({ summary: 'Обновить профиль текущего пользователя' })
   @ApiBody({
@@ -148,8 +147,6 @@ export class UserController {
     return await this.userService.updateUserById(id, userUpdateDto);
   }
 
-  @ApiBearerAuth('access-token')
-  @UseGuards(AuthGuard)
   @Delete('profile')
   @ApiOperation({ summary: 'Удалить профиль текущего пользователя' })
   @ApiResponse({
@@ -160,6 +157,7 @@ export class UserController {
     return await this.userService.deleteUserById(sub);
   }
 
+  @Roles(Role.ADMIN)
   @Delete(':id')
   @ApiOperation({ summary: 'Удалить пользователя по ID' })
   @ApiParam({
